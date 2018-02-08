@@ -48,17 +48,13 @@ function getCurrentTabUrl(callback) {
 }
 
 /**
- * Change the background color of the current page.
+ * Change the slack emoji style of the current page.
  *
  * @param {string} color The new background color.
  */
-function changeBackgroundColor(color) {
-  var script = 'document.body.style.backgroundColor="' + color + '";';
-  // See https://developer.chrome.com/extensions/tabs#method-executeScript.
-  // chrome.tabs.executeScript allows us to programmatically inject JavaScript
-  // into a page. Since we omit the optional first argument "tabId", the script
-  // is inserted into the active tab of the current window, which serves as the
-  // default.
+function changeSlackEmojiStyle(style) {
+  var script = 'postMessage({slack_emoji_style:"' + style + '"}, window.origin);';
+  console.log(script);
   chrome.tabs.executeScript({
     code: script
   });
@@ -95,6 +91,7 @@ function saveBackgroundColor(url, color) {
   chrome.storage.sync.set(items);
 }
 
+
 // This extension loads the saved background color for the current tab if one
 // exists. The user can select a new background color from the dropdown for the
 // current page, and it will be saved as part of the extension's isolated
@@ -111,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // value, if needed.
     getSavedBackgroundColor(url, (savedColor) => {
       if (savedColor) {
-        changeBackgroundColor(savedColor);
+        changeSlackEmojiStyle(savedColor);
         dropdown.value = savedColor;
       }
     });
@@ -119,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ensure the background color is changed and saved when the dropdown
     // selection changes.
     dropdown.addEventListener('change', () => {
-      changeBackgroundColor(dropdown.value);
+      changeSlackEmojiStyle(dropdown.value);
       saveBackgroundColor(url, dropdown.value);
     });
   });
