@@ -11,6 +11,13 @@
   },
   "permissions": [
     "activeTab",
+    "tabs", "https://*.slack.com/*",
     "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.slack.com/*"],
+      "js": ["changeemoji.js"]
+    }
   ]
 }
