@@ -8,7 +8,7 @@
  * @param {function(string)} callback called when the URL of the current tab
  *   is found.
  */
-function getCurrentTabUrl(callback) {
+function getCurrentTabDomain(callback) {
   // Query filter to be passed to chrome.tabs.query - see
   // https://developer.chrome.com/extensions/tabs#method-query
   var queryInfo = {
@@ -26,15 +26,18 @@ function getCurrentTabUrl(callback) {
 
     // A tab is a plain object that provides information about the tab.
     // See https://developer.chrome.com/extensions/tabs#type-Tab
-    var url = tab.url;
+    // var url = tab.url;
+
+    var url = new URL(tab.url)
+    var domain = url.hostname
 
     // tab.url is only available if the "activeTab" permission is declared.
     // If you want to see the URL of other tabs (e.g. after removing active:true
     // from |queryInfo|), then the "tabs" permission is required to see their
     // "url" properties.
-    console.assert(typeof url == 'string', 'tab.url should be a string');
+    console.assert(typeof tab.url == 'string', 'tab.url should be a string');
 
-    callback(url);
+    callback(domain);
   });
 
   // Most methods of the Chrome extension APIs are asynchronous. This means that
@@ -101,12 +104,12 @@ function saveBackgroundColor(url, color) {
 // chrome.storage.local allows the extension data to be synced across multiple
 // user devices.
 document.addEventListener('DOMContentLoaded', () => {
-  getCurrentTabUrl((url) => {
+  getCurrentTabDomain((domain) => {
     var dropdown = document.getElementById('dropdown');
 
     // Load the saved background color for this page and modify the dropdown
     // value, if needed.
-    getSavedBackgroundColor(url, (savedColor) => {
+    getSavedBackgroundColor(domain, (savedColor) => {
       if (savedColor) {
         changeSlackEmojiStyle(savedColor);
         dropdown.value = savedColor;
@@ -117,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // selection changes.
     dropdown.addEventListener('change', () => {
       changeSlackEmojiStyle(dropdown.value);
-      saveBackgroundColor(url, dropdown.value);
+      saveBackgroundColor(domain, dropdown.value);
     });
   });
 });
